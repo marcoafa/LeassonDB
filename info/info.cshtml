@@ -1,0 +1,99 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model homeViewModel
+
+@{
+    ViewBag.Title = "Info";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link href="~/Content/bootstrap-table.css" rel="stylesheet" />
+    <script src="~/Plugins/bootstrap-table.js"></script>
+
+</head>
+<div class="panel panel-default">
+    <div class="container">
+        <!--Tabs Principales-->
+        <ul id="mainUL" class="nav nav-tabs">
+            <li id="t1">
+                <a href="~/home/home" class="pestania">
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home
+                </a>
+            </li>
+            <li id="t4"><a href="~/user/user" class="pestania">Users Management</a></li>
+        </ul>
+    </div>
+
+
+
+    <div class="panel-heading">
+        <h2 class="text-center">Edit Lessons Learned Per Month Graph</h2>
+    </div>
+    <div>
+
+        <form method="post" action="~/info/actualizar" id="infoForm" enctype="multipart/form-data">
+            <div id="table1" class="tab-pane fade in active">
+                <table class="table table-bordered table-hover table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>BDM</th>
+                            <th>BHUN</th>
+                            <th>BXL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <tr>
+                                @switch (i)
+                                {
+                                    case 1:
+                                        <td>Jan</td> break;
+                                    case 2:
+                                    <td>Feb</td> break;
+                                    case 3:
+                                    <td>Mar</td> break;
+                                    case 4:
+                                    <td>Apr</td> break;
+                                    case 5:
+                                    <td>May</td> break;
+                                    case 6:
+                                    <td>Jun</td> break;
+                                    case 7:
+                                    <td>Jul</td> break;
+                                    case 8:
+                                    <td>Aug</td> break;
+                                    case 9:
+                                    <td>Sep</td> break;
+                                    case 10:
+                                    <td>Oct</td> break;
+                                    case 11:
+                                    <td>Nov</td> break;
+                                    case 12:
+                                    <td>Dec</td> break;
+
+                                }
+
+
+                                @for (int j = 1; j <= 3; j++)
+                                {
+                                    <td><input type="number" id="C_@j@i" name="C_@j@i" value="@((from l in Model.listaGraph where l.plant==j && l.month==i select l.value).FirstOrDefault())" /></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+            <div class="container">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            </div>
+        </form>
+
+
+
+    </div>
+
+</div>

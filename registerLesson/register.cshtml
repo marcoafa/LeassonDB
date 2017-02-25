@@ -1,0 +1,348 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model homeViewModel
+@{
+    ViewBag.Title = "Register Lesson";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/bootstrap.js"></script>
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<link href="~/Content/fileinput.min.css" rel="stylesheet" />
+<script src="~/Scripts/fileinput.min.js"></script>
+<head>
+    <title></title>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Plugins/jquery.jqplot.css" rel="stylesheet" />
+</head>
+
+
+<div class="panel panel-default">
+    <div class="container">
+        <!--Tabs Principales-->
+        <ul id="mainUL" class="nav nav-tabs" >
+            <li id="t1">
+                <a href="~/home/home" class="pestania">
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home
+                </a>
+            </li>
+            <li id="t4"><a href="~/user/user" class="pestania">Users Management</a></li>
+        </ul>
+    </div>
+    
+    <div class="panel-heading">
+        <h2 class="text-center">Add a New Lesson</h2>
+    </div>
+    <div>
+        <!--Enlace a Home-->
+        
+ <!--Campos-->
+        <form method="post" action="~/registerLesson/nuevaLeccion" enctype="multipart/form-data">
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Plant</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="plant" class="form-control" name="plt">
+                        <option value="ALL">ALL</option>
+                        <option value="BDM">BDM</option>
+                        <option value="BHUN">BHUN</option>
+                        <option value="BXL">BXL</option>
+                    </select>
+                </div>
+            </div>
+            @*@foreach (var c in Model.listaPlanta)
+            {
+                <input id="val_@c.plant.Trim()" type="hidden"  value="@(c.count+1)">
+            }*@
+            <div id="divID" class="row container ">
+
+                <div class="col-md-3 col-md-offset-3">
+                    <label>ID</label>
+                </div>
+                <div class="col-md-3">
+                    <input id="prodID" name="ID" type="text" class="form-control" value="" />
+                </div>
+            </div>
+            @*<div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Enable Custom ID</label>
+                </div>
+                <div class="col-md-3">
+                    <input id="cbID" name="c2" type="checkbox" class="checkbox" />
+                </div>
+            </div>*@
+
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Issue</label>
+                </div>
+                <div class="col-md-3">
+                    <input name="issue" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Action Item/Description</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="action" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Status</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="status">
+                        <option value="Closed">Closed</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="On Hold">On Hold</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Priority</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="pri">
+                        <option selected="selected" value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+
+                    <label>Target Date</label>
+                </div>
+                <div class="col-md-3">
+                    <input name="targetDate" type="date" class="form-control" />
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Lesson is still Ongoing</label>
+                </div>
+                <div class="col-md-3">
+                    <input id="cbClosed" name="c1" type="checkbox" class="checkbox" checked="checked" />
+                </div>
+            </div>
+
+            <div id="divClosed" class="row container fade">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Date Closed</label>
+                </div>
+                <div class="col-md-3">
+                    <input name="dateClosed" id="dc" type="date" class="form-control" />
+                </div>
+            </div>
+            @*<div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <input name="owner" type="text" class="form-control" />
+                </div>
+            </div>*@
+            @*truchas*@
+            <div class="rowcontainer" >
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Number of Owners</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="ownerCounter" id="ownerCounter">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="owner">
+
+                        
+                        @foreach (var o in Model.listaOwners)
+                        {
+                            <option value="@o.username+1">@o.name</option>
+                        }
+                        @foreach (var o in Model.listaUsuarios)
+                        {
+                            <option value="@o.username+0">@o.nombre</option>
+                        }
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="row container hidden" id="ownerCount2">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="owner2">
+                        <option value="default">Select 2nd Owner</option>
+                        @foreach (var o in Model.listaOwners)
+                        {
+                            <option value="@o.username+1">@o.name</option>
+                        }
+                        @foreach (var o in Model.listaUsuarios)
+                        {
+                            <option value="@o.username+0">@o.nombre</option>
+                        }
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="row container hidden" id="ownerCount3">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="owner3">
+                        <option value="default">Select 3rd Owner</option>
+                        @foreach (var o in Model.listaOwners)
+                        {
+                            <option value="@o.username+1">@o.name</option>
+                        }
+                        @foreach (var o in Model.listaUsuarios)
+                        {
+                            <option value="@o.username+0">@o.nombre</option>
+                        }
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="row container hidden" id="ownerCont4">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="owner4">
+                        <option value="default">Select 4th Owner</option>
+                        @foreach (var o in Model.listaOwners)
+                        {
+                            <option value="@o.username+1">@o.name</option>
+                        }
+                        @foreach (var o in Model.listaUsuarios)
+                        {
+                            <option value="@o.username+0">@o.nombre</option>
+                        }
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="row container hidden" id="ownerCont5">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Owner</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" name="owner5">
+                        <option value="default">Select 5th Owner</option>
+                        @foreach (var o in Model.listaOwners)
+                        {
+                            <option value="@o.username+1">@o.name</option>
+                        }
+                        @foreach (var o in Model.listaUsuarios)
+                        {
+                            <option value="@o.username+0">@o.nombre</option>
+                        }
+
+
+                    </select>
+                </div>
+            </div>
+            @*truchas*@
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Status Updates/Activities</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="statusUpdate" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row container">
+                <div class="col-md-7 col-md-offset-3">
+                    <label>
+                        Upload File (Word, Excel, PowerPoint and PDF files only)
+                    </label>
+                
+                    <input type="file" name="fileup" class="file form-control" data-show-preview="false" data-show-upload="false">
+                </div>
+            </div>
+
+
+
+            <div class="row text-center">
+                <button class="btn btn-primary" type="submit">OK</button>
+                <a href="~/home/home"> Cancel </a>
+            </div>
+        </form>
+
+                    </div>
+                
+                </div>
+<!--Control del Checkbox para aparecer o desaparecer el campo de Closed Date-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#cbClosed').change(function () {
+            if (!this.checked) {
+                //  ^
+                //$('#div1').fadeOut;
+                $('#divClosed').removeClass('fade');
+            }
+            else {
+                //$('div1').fadeIn();
+                $('#divClosed').addClass('fade');
+            }
+        });
+        //revisa cuantos campos de owner deben de estar abiertos
+        $('#ownerCounter').change(function () {
+            if (this.value == '1')
+            {
+                $('#ownerCount2').addClass('hidden');
+                $('#ownerCount3').addClass('hidden');
+                $('#ownerCont4').addClass('hidden');
+                $('#ownerCont5').addClass('hidden');
+            }
+            if (this.value == '2') {
+                $('#ownerCount2').removeClass('hidden');
+                $('#ownerCount3').addClass('hidden');
+                $('#ownerCont4').addClass('hidden');
+                $('#ownerCont5').addClass('hidden');
+            }
+            if (this.value == '3') {
+                $('#ownerCount2').removeClass('hidden');
+                $('#ownerCount3').removeClass('hidden');
+                $('#ownerCont4').addClass('hidden');
+                $('#ownerCont5').addClass('hidden');
+            }
+            if (this.value == '4') {
+                $('#ownerCount2').removeClass('hidden');
+                $('#ownerCount3').removeClass('hidden');
+                $('#ownerCont4').removeClass('hidden');
+                $('#ownerCont5').addClass('hidden');
+            }
+            if (this.value == '5') {
+                $('#ownerCount2').removeClass('hidden');
+                $('#ownerCount3').removeClass('hidden');
+                $('#ownerCont4').removeClass('hidden');
+                $('#ownerCont5').removeClass('hidden');
+            }
+        });
+    });
+</script>

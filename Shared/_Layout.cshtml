@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Lessons Learned DB: @ViewBag.Title </title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/png" href="~/Content/bourns_b.jpg" />
+
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <style>
+        .white, .white a {
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    @*Para cuando tengamos la info completa
+        <a href="ENLACE"><span class="glyphicon glyphicon-home white"></span> </a>*@
+    
+    <div class="col-md-12 bg-primary">
+        @if(ViewBag.nombre== "None")
+        { 
+        <form method="post" action="~/home/ar" class="text-right">
+            <div class="form-inline" >
+                <div class="form-group" >
+                    <input type="text" name="nombre" class="form-control input-sm" placeholder="Username" />
+                     
+                </div>
+                <div class="form-group">
+                    <input type="password" name="pass" class="form-control input-sm" placeholder="Password"/>
+                 </div>
+                <button type="submit" class="btn btn-default btn-sm">Log In</button> 
+
+            </div>
+        </form>
+        }
+        @if (ViewBag.nombre != "None")
+        {
+            <form method="post" action="~/home/LogOut" class="text-right">
+            <div class="form-inline" >
+                @ViewBag.nombre
+                <button type="submit" class="btn btn-default btn-sm">Log Out</button> 
+
+            </div>
+        </form>
+             
+        }
+    </div>
+    <div class="bg-white text-left" style="width:100%;">
+        <img src="~/Content/Bourns_logo.jpg" alt="Bourns de Mexico" style="padding-left:30px" width="20%px" />
+    </div>
+    <div class="text-center" style="width:100%;">
+        <div class="col-md-4 bg-primary" style="border-right:1px solid black">
+            Bourns de Mexico - Tijuana Plant
+        </div>
+        <div class="col-md-4 bg-primary">
+            Lessons Learned DB
+        </div>
+        <div class="col-md-4 bg-primary" style="border-left:1px solid black">
+            IT Department
+        </div>
+    </div>
+
+    <div class="container body-content">
+        @RenderBody()
+
+    </div> 
+   
+</body>
+</html>

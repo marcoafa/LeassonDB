@@ -1,0 +1,137 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model homeViewModel
+@{
+    ViewBag.Title = "Files";
+    
+    
+}
+
+
+<!--css class(es)-->
+
+<style>
+    /*clase block (para el despliegue del boton UPDATE de la tabla)*/
+    .block {
+        display: none;
+    }
+    /*para que la tabla se fije automaticamente al tamaño de la pantalla*/
+    table th {
+        width: auto !important;
+    }
+
+    .scroll {
+        overflow: auto;
+        height: 100px;
+    }
+</style>
+
+<head>
+    <title></title>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Plugins/jquery.jqplot.css" rel="stylesheet" />
+</head>
+<body>
+<div class="panel panel-default">
+    @*<div class="container">*@
+        <!--Tabs Principales-->
+        @*<ul id="mainUL" class="nav nav-tabs">
+            <li id="t1">
+                <a href="~/home/home#menu2b" class="pestania">
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home
+                </a>
+            </li>
+            <li id="t4"><a href="~/user/user" class="pestania">Users Management</a></li>
+        </ul>
+    </div>*@
+    <div class="panel-heading">
+        <h2 class="text-center">These are the following files for the selected Action.</h2>
+    </div> 
+    <div class="panel-body">
+        
+        @*<form class="" method="post" action="~/files/action">
+        <input type="hidden" name="reportID" value="@Model.reportID" />
+            <div class="btn-group-vertical">
+            <button type="submit" class="btn btn-default">
+                Back to Table
+            </button>
+        </div>
+
+        </form>*@
+        <button name="close" id="close" class="btn btn-info">Close Files Window</button>
+        <br />
+        
+        <!--Tabs de Action List"--> 
+        <div id="table1">
+            <!--Tabla de In Progress-->
+            <table id="mainTable" class="table table-bordered table-hover table-responsive">
+                <thead>
+                  <tr>
+                      <th>File Name</th>
+                    <th> Download</th>
+                <th data-field="delete" id="delete" class="@(Model.found==false? "block":"")">Delete</th>
+                </tr>
+                </thead>
+                <tbody id="mainTableBody">                  
+                @foreach (file f in Model.listaArchivos)
+                {
+                    
+                    if(f.reportID == Model.reportID)
+                    {
+                        <tr>
+                        
+                         <td>@f.fileName</td> 
+                        <td>
+                            <form class="" method="post" action="~/files/getFile">
+                                <input type="hidden" name="fileID" value="@f.fileID" />
+                                <div class="btn-group-vertical">
+                                    <button type="submit" class="btn btn-link" id="file">
+                                        <span class="glyphicon glyphicon-download-alt"></span>
+                                        Download File
+                                    </button>
+                                </div>
+
+                            </form>
+                        </td>
+                            <td class ="@(Model.found==false? "block":"")">
+                                <form class="" method="post" action="~/files/delete">
+                                    <input type="hidden" name="fileID" value="@f.fileID" />
+                                    <div class="btn-group-vertical">
+                                        <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Warning: You are about to delete a file permanently. Are you sure you want to delete it?')">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            </tr>
+                    }
+                        
+                } 
+                </tbody>
+                <tfoot id="mainTableFooter"></tfoot>
+            </table>
+        </div>
+        </div>
+    
+    </div>
+@*@if (Model.found==true)
+{ 
+<div class="form-group">
+    <label>Add a New File (Word, Excel, PowerPoint and PDF files only)</label>
+    <input type="file" name="fileup" class="file" data-show-preview="false" data-show-upload="false">
+</div>
+    }*@
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#close').on('click', function () {
+            window.top.close();
+        });
+    });
+
+</script>
+</body>

@@ -1,0 +1,242 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model LessonViewModel
+@{
+    ViewBag.Title = "Register Lesson";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/bootstrap.js"></script>
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<link href="~/Content/fileinput.min.css" rel="stylesheet" />
+<script src="~/Scripts/fileinput.min.js"></script>
+<head>
+    <title></title>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Plugins/jquery.jqplot.css" rel="stylesheet" />
+</head>
+
+
+<div class="panel panel-default">
+    <div class="container">
+        <!--Tabs Principales-->
+        <ul id="mainUL" class="nav nav-tabs">
+            <li id="t1">
+                <a href="~/home/home" class="pestania">
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home
+                </a>
+            </li>
+            <li id="t4"><a href="~/user/user" class="pestania">Users Management</a></li>
+        </ul>
+    </div>
+
+
+
+    <div class="panel-heading">
+        <h2 class="text-center">Add a New Lesson</h2>
+    </div>
+    <div>
+        <!--Enlace a Home-->
+        <!--Campos-->
+        <form method="post" action="~/registerLesson/NewLesson" enctype="multipart/form-data">
+           
+            <!-- ID LESSON-->
+            <div class="row container ">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>ID:</label>
+                </div>
+                <div class="col-md-3">
+                    <input id="prodID" name="LessonID" type="text" class="form-control" value="" />
+                </div>
+            </div>
+            
+            <!-- PLANT INITIATOR-->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Plant Initiator:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="plantInitiator" class="form-control" name="PlantInitiatorID">
+                        @foreach (var plant in Model.PlantInitiator)
+                        {
+                            <option value="@plant.PlantInitiatorID">@plant.Plant</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- PRODUCT AFFECTED-->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Product Affected:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="product" class="form-control" name="ProductAffectedID">
+                        @foreach (var product in Model.ProductAffected)
+                        {
+                            <option value="@product.ProductAffectedID">@product.Product</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- AREA AFFECTED-->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Area Affected:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="area" class="form-control" name="AreaAffectedID">
+                        @foreach (var area in Model.AreaAffected)
+                        {
+                            <option value="@area.AreaAffectedID">@area.Area</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <!-- PROBLEM DESCRIPTION -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Problem / Description:</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="ProblemDescription" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <!-- ROOT CAUSE -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Root Cause:</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="RootCause" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <!-- CORECTIVE ACTION -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Corrective Action:</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="CorrectiveAction" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <!-- SOUCRCE -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Source:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="source" class="form-control" name="SourceID">
+                        @foreach (var source in Model.Source)
+                        {
+                            <option value="@source.SourceID">@source.Description</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- BHUN STATUS -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>BHUN Status:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="bhunstatus" class="form-control" name="BHUNStatus">
+                        @foreach (var status in Model.StatusPlant)
+                        {
+                            <option value="@status.StatusPlantID">@status.Status</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- BDM STATUS -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>BDM Status:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="bdmstatus" class="form-control" name="BDMStatus">
+                        @foreach (var status in Model.StatusPlant)
+                        {
+                            <option value="@status.StatusPlantID">@status.Status</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- BXL STATUS -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>BXL Status:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="bxlstatus" class="form-control" name="BXLStatus">
+                        @foreach (var status in Model.StatusPlant)
+                        {
+                            <option value="@status.StatusPlantID">@status.Status</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- AUTHOR -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Author:</label>
+                </div>
+                <div class="col-md-3">
+                    <select id="Author" class="form-control" name="Author">
+                        @foreach (var owner in Model.Owners)
+                        {
+                            <option value="@owner.username">@owner.name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- COMMENT -->
+            <div class="row container">
+                <div class="col-md-3 col-md-offset-3">
+                    <label>Comment:</label>
+                </div>
+                <div class="col-md-3">
+                    <textarea name="Comment" class="form-control"></textarea>
+                </div>
+            </div>
+
+          
+            @*TO UPLOAD FILELESSON*@
+            <div class="row container">
+                <div class="col-md-7 col-md-offset-3">
+                    <label>
+                        Upload File (Word, Excel, PowerPoint and PDF files only)
+                    </label>
+
+                    <input type="file" name="FileLesson" class="file form-control" data-show-preview="false" data-show-upload="false">
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <button class="btn btn-primary" type="submit">OK</button>
+                <a href="~/home/home"> Cancel </a>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+       
+    });
+</script>

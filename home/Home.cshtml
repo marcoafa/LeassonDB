@@ -1,0 +1,2406 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model ActionLessonViewModel
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <title></title> 
+
+    <!--Librerias-->
+    <link href="~/Content/bootstrap-table.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-sortable.css" rel="stylesheet" />
+    <script src="~/Plugins/jquery.jqplot.js"></script>
+    <script src="~/Plugins/jqplot.barRenderer.min.js"></script>
+    <script src="~/Plugins/jqplot.categoryAxisRenderer.min.js"></script>    
+    <script src="~/Plugins/jqplot.canvasAxisTickRenderer.js"></script>
+    <script src="~/Plugins/jqplot.canvasAxisLabelRenderer.js"></script>
+    <script src="~/Plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script src="~/Plugins/jqplot.pointLabels.min.js"></script>
+    <link href="~/Plugins/jquery.jqplot.css" rel="stylesheet" type="text/css" />
+    <script src="~/Plugins/bootstrap-table.js"></script>
+    <script src="~/Plugins/bootstrap-sortable.js"></script>
+   <script src="~/Plugins/jquery.tablesorter.min.js"></script>
+    <link href="~/Content/fileinput.min.css" rel="stylesheet" />
+    <script src="~/Scripts/fileinput.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    
+     <!--css class(es)-->
+
+    <style>
+        /*clase block (para el despliegue del boton UPDATE de la tabla)*/
+        .block{
+             display:none
+         }
+        /*para que la tabla se fije automaticamente al tamaño de la pantalla*/
+        table th {
+            width: auto !important;
+        }
+        .scroll {
+        overflow:auto;
+        height:100px;
+
+        }
+        
+        
+     </style>
+
+    
+</head>
+<body>
+    <input id="permitlvl" type="hidden" value="@Model.HVM.level" />
+
+    <div class="container">
+        <!--Tabs Principales-->
+        <ul id="mainUL" class="nav nav-tabs">
+            <li id="t1" class="@(Model.HVM.updated!=true?"active":"")"><a data-toggle="tab" href="#home" class="pestania">
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home</a>
+            </li>
+            <li id="t5"><a id="menu3b" data-toggle="tab" href="#menu3">Lesson List</a></li>
+            <li id="t3" class="@(Model.HVM.updated==true?"active":"")"><a id="menu2b" data-toggle="tab" href="#menu2">Action List</a></li>
+            <li id="t2"><a id="menu1b" data-toggle="tab" href="#menu1">Graphic Results</a></li>
+            <li id="t4"><a href="~/user/user" class="pestania">Users Management</a></li>   
+           
+        </ul>
+    </div>
+    <div class="tab-content">
+        <!--Main Home: Vista Inicial-->
+        <div id="home" class="tab-pane fade @(Model.HVM.updated!=true?"in active":"")">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center"> Welcome to Lessons Learned DB.</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button id="buttonGraph" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-signal" aria-hidden="true"></span> Graphic Results
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button id="buttonTable" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Action List
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="~/registerLesson/register" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add an Action
+                            </a>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button id="exportTable" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                Export to Excel
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="~/home/DownloadAll"> All Actions </a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="~/home/DownloadIPD">Non-Closed Actions</a></li>
+                                @*<li><a href="~/home/test">test</a></li>*@
+                            </ul>
+
+                        </div>
+                        <div class="col-md-3">
+                            <button id="buttonLesson" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span> Lesson List
+                            </button>
+                        </div>
+                        
+                        @*@if (Model.HVM.level == 3)
+                        {
+                            <div class="col-md-3">
+                                <a href="~/info/info" class="btn btn-primary">
+                                    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> LL Graph Info
+                                </a>
+                            </div>
+                        }*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Menu de Graficas:Tab de las graficas Action List-->
+        <div id="menu1" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center">Graph Results</h2>
+                </div>
+                <!-- Control Date-Range para filtro-->
+                <div id="datesGraphLesson" class="pull-left" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%; margin-bottom:30px">
+                    <span></span>
+                    <i class="glyphicon glyphicon-calendar fa fa-calendar" style="float:right"></i>
+                </div>
+                <!--Botones para llamar lo que hay que mostrar en el objeto Chart-->
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="progress">Action by Progress</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="closed">Action Closed %</button>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="topten">Top Ten Owners</button>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="monthly">Actions By Month</button>
+                        </div>
+                    </div>
+                    <br /><br />
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success" id="GraphLessonTotal">Lesson By Plant</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success" id="GraphLessonStatus">Lesson By Status</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success" id="llmonthly">Lessons By Month</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success" id="llyear">Lessons By Year</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--Objeto dropdown Actions By Month-->
+                <div id="yearDiv" class="panel-body col-sm-2">
+                    <label id="year">Select Year: </label>
+                    <select id="yearcontrol"  class="form-control " name="year">
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                    </select>
+                </div>
+
+                <!--Objeto dropdown para Lesson By Status-->
+                <div id="plantDiv" class="panel-body col-sm-2">
+                    <label id="plantLabel">Select Plant: </label>
+                    <select id="plantcontrol" class="form-control " name="plantgraphstatus">
+                        <option value="All" selected>All</option>
+                        @foreach (var p in Model.LVM.PlantInitiator)
+                        {
+                            <option value="@p.PlantInitiatorID">@p.Plant</option>
+                        }
+                    </select>
+                </div>
+
+                <!--Objeto dropdown Lessons By Month-->
+                <div id="yearDivLesson" class="panel-body col-sm-2">
+                    <label id="year">Select Year: </label>
+                    <select id="yearLesson" class="form-control " name="year">
+                        <option value="2017">2017</option>
+                         <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                    </select>
+                </div>
+
+                <!--Objeto dropdown Lessons By Year-->
+                <div id="yearDivLessonYear" class="panel-body col-sm-2">
+                    <label id="year">Select Starting Year: </label>
+                    <select id="yearLessonYear" class="form-control " name="year">
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                    </select>
+                </div>
+
+              
+
+                <!--Objeto Label p/cuando no hay nada que desplegar en el chart-->
+                <div class="panel-body">
+                    <label id="lblInfo" class="alert-info center-block text-center hidden"> There is no data to display for this request.</label>
+                </div>
+                
+                
+                    <!--Objeto Chart-->
+               <div>
+                   
+                 <div id="chart1" class="panel-body col-md-12" ></div>
+                <br />
+                
+            <!--Objeto Label p/ especificar los detalles de lo desplegado en Top Ten Owners o la fecha de los mensuales-->
+                   <div>
+                       <label id="chartInfo"> </label>
+                   </div>
+            
+                </div>
+
+        </div>
+            
+            </div>
+        <!--Tab con la tabla que contiene los Action List-->
+        <div id="menu2" class="tab-pane fade @(Model.HVM.updated==true?" in active":"")">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center">Action List</h2>
+                    <br />
+                </div>
+                <div id="reportrange" class="pull-left" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%; margin-bottom:30px">
+                    <span></span>
+                    <i class="glyphicon glyphicon-calendar fa fa-calendar" style="float:right"></i>
+                </div>
+                <!--Panel de Opciones de la Action List Tab-->
+                <div class="panel-body">
+                    <ul class="nav nav-pills nav-justified">
+                        <!--Boton para ir a la pagina de registro-->
+                        <li>
+                            <a href="~/registerLesson/register" class="pestania btn-success">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>New Action
+                            </a>
+                        </li>
+                        <!--Tablas por estado-->
+                        <li id="li1" class="@(Model.HVM.table==null||Model.HVM.table==1? "active":"")"><a data-toggle="tab" href="#table1" class="pestania">In Progress</a></li>
+                        <li id="li2" class="@(Model.HVM.table==2?"active":"")"><a id="tab2" data-toggle="tab" href="#table2" class="pestania">Delayed</a></li>
+                        <li id="li4" class="@(Model.HVM.table==4?"active":"")"><a id="tab4" data-toggle="tab" href="#table4" class="pestania">On Hold</a></li>
+                        <li id="li3" class="@(Model.HVM.table==3?"active":"")"><a id="tab3" data-toggle="tab" href="#table3" class="pestania">Closed</a></li>
+                    </ul>
+                    <div class="col-md-12">
+                        <div class="form-group">
+
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <!--Tabs de Action List"-->
+                        <div id="table1" class="tab-pane fade in active">
+                            <!--Tabla de In Progress-->
+                            <table id="mainTable" class="table table-bordered table-hover table-responsive" data-toggle="table"
+                                   data-sortable="true" data-search="true" data-pagination="true" data-sort-name="date" data-sort-order="desc">
+                                <thead>
+                                    <tr>
+                                        <th data-field="fileID">File</th>
+                                        <th data-field="plant" data-sortable="true">Plant</th>
+                                        <th data-field="pID" data-sortable="true">Product ID</th>
+                                        <th data-field="issue" data-sortable="true">Issue</th>
+                                        <th data-field="aItem" data-sortable="true">Action Item</th>
+                                        <th data-field="status" data-sortable="true">Status</th>
+                                        <th data-field="date" data-sortable="true">Date</th>
+                                        <th data-field="tDate" data-sortable="true">Target Date</th>
+                                        <th data-field="cDate" data-sortable="true">Close Date</th>
+                                        <th data-field="owner" data-sortable="true">Owner</th>
+                                        <th data-field="sUpdate" data-sortable="true">Status Update</th>
+                                        <th data-field="update" class="@(Model.HVM.found==false? "block":"")" id="update">Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mainTableBody">
+
+
+
+                                    @foreach (actionList accion in Model.HVM.listaAcciones)
+                                    {
+                                        if (accion.status == "In Progress")
+                                        {
+                                            switch (accion.priority)
+                                            {
+
+                                                case ("Medium"):
+                                                    Model.HVM.priorityColor = "warning";
+                                                    break;
+                                                case ("High"):
+                                                    Model.HVM.priorityColor = "danger";
+                                                    break;
+                                                default:
+                                                    Model.HVM.priorityColor = "";
+                                                    break;
+
+                                            }
+
+                                            <tr id="@accion.reportID">
+                                                @if (accion.files.Count == 0)
+                                                {
+                                                    <td>No file found</td>
+
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <form class="" method="post" action="~/home/getFile" target="_blank">
+                                                            <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                            <div class="btn-group-vertical">
+                                                                <button type="submit" class="btn btn-link" id="file">
+                                                                    <span class="glyphicon glyphicon-paperclip"></span>
+                                                                </button>
+                                                            </div>
+
+                                                        </form>
+                                                      </td>
+
+                                                }
+                                                <td>@accion.plant</td>
+                                                <td>@accion.productID</td>
+                                                <td>@accion.issue</td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.actionItem
+                                                    </div>
+                                                </td>
+                                                <td class="@Model.HVM.priorityColor">@accion.status</td>
+                                                <td> @(accion.date != null ? accion.date.ToString("yyyy/MM/dd") : "No Initial Date") </td>
+                                                <td>@(accion.targetDate != null ? accion.targetDate.Value.ToString("yyyy/MM/dd") : "TBD")</td>
+                                                <td>
+                                                    @(accion.closed != null ? accion.closed.Value.ToString("yyyy/MM/dd") : "Ongoing")
+                                                </td>
+                                                <td>
+                                                @(accion.owner != "test" ? accion.owner : "")
+                                                @if (accion.owner == "test")
+                                                {
+                                                    foreach (owner o in accion.owners)
+                                                    {
+                                                        @(o.name +", ") 
+                                                    } 
+                                                }
+                                                   
+
+                                                
+                                                </td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.statusUpdate
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @*<button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal_@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                        Update
+                                                    </button>*@
+                                                    <button type="button" class="btn btn-default updater" data-id="@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>Update
+                                                    </button>  
+                                                    <form class="" method="post" action="~/home/delete">
+                                                        <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                        <div class="btn-group-vertical">
+                                                            <button type="submit" class="btn btn-danger"
+                                                                    onclick="return confirm('Warning: You are about to delete an Action. ' +
+                                                                                            'If you do this, all the Lesson information and its files will be lost. '+
+                                                                                            'Are you sure yo want to delete it?')">
+                                                                <span class="glyphicon glyphicon-remove"></span>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    }
+                                </tbody>
+                                <tfoot id="mainTableFooter"></tfoot>
+                            </table>
+                        </div>
+                        <div id="table2" class="tab-pane fade">
+                            <!--Tabla de Delayed-->
+                            <table id="delayedTable" class="table table-bordered table-hover table-responsive" data-toggle="table"
+                                   data-sortable="true" data-search="true" data-pagination="true" data-sort-name="date" data-sort-order="desc">
+                                <thead>
+                                    <tr>
+                                        <th data-field="fileID"> File</th>
+                                        <th data-field="plant" data-sortable="true">Plant</th>
+                                        <th data-field="pID" data-sortable="true">Product ID</th>
+                                        <th data-field="issue" data-sortable="true">Issue</th>
+                                        <th data-field="aItem" data-sortable="true">Action Item</th>
+                                        <th data-field="status" data-sortable="true">Status</th>
+                                        <th data-field="date" data-sortable="true">Date</th>
+                                        <th data-field="tDate" data-sortable="true">Target Date</th>
+                                        <th data-field="cDate" data-sortable="true">Close Date</th>
+                                        <th data-field="owner" data-sortable="true">Owner</th>
+                                        <th data-field="sUpdate" data-sortable="true">Status Update</th>
+                                        <th data-field="update" class="@(Model.HVM.found==false? "block":"")" id="update">Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="delayedTableBody">
+
+                                    @foreach (actionList accion in Model.HVM.listaAcciones)
+                                    {
+                                        if (accion.status == "Delayed")
+                                        {
+                                            switch (accion.priority)
+                                            {
+
+                                                case ("Medium"):
+                                                    Model.HVM.priorityColor = "warning";
+                                                    break;
+                                                case ("High"):
+                                                    Model.HVM.priorityColor = "danger";
+                                                    break;
+                                                default:
+                                                    Model.HVM.priorityColor = "";
+                                                    break;
+
+                                            }
+                                            <tr id="@accion.reportID">
+                                                @if (accion.files.Count == 0)
+                                                {
+                                                    <td>No file found</td>
+
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <form class="" method="post" action="~/home/getFile" target="_blank">
+                                                            <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                            <div class="btn-group-vertical">
+                                                                <button type="submit" class="btn btn-link" id="file">
+                                                                    <span class="glyphicon glyphicon-paperclip"></span>
+                                                                </button>
+                                                            </div>
+
+                                                        </form>
+                                                    </td>
+
+                                                }
+                                                <td>@accion.plant</td>
+                                                <td>@accion.productID</td>
+                                                <td>@accion.issue</td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.actionItem
+                                                    </div>
+                                                </td>
+                                                <td class="@Model.HVM.priorityColor">@accion.status</td>
+                                                <td> @(accion.date != null ? accion.date.ToString("yyyy/MM/dd") : "No Initial Date") </td>
+                                                <td>@(accion.targetDate != null ? accion.targetDate.Value.ToString("yyyy/MM/dd") : "TBD")</td>
+                                                <td>
+                                                    @(accion.closed != null ? accion.closed.Value.ToString("yyyy/MM/dd") : "Ongoing")
+                                                </td>
+                                                <td>
+                                                    @(accion.owner != "test" ? accion.owner : "")
+                                                    @if (accion.owner == "test")
+                                                    {
+                                                        foreach (owner o in accion.owners)
+                                                        {
+                                                            @(o.name + ", ")
+                                                        }
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.statusUpdate
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @*<button type="button" data-toggle="modal" class="btn btn-default" data-target="#modal_@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                        Update
+                                                    </button>*@
+                                                    <button type="button" class="btn btn-default updater" data-id="@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>Update
+                                                    </button> 
+                                                    <form class="" method="post" action="~/home/delete">
+                                                        <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                        
+                                                        <div class="btn-group-vertical">
+                                                            <button type="submit" class="btn btn-danger"
+                                                                    onclick="return confirm('Warning: You are about to delete an Action. ' +
+                                                                                            'If you do this, all the Lesson information and its files will be lost. ' +
+                                                                                            'Are you sure yo want to delete it?')">
+                                                                <span class="glyphicon glyphicon-remove"></span>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    }
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                        <div id="table3" class="tab-pane fade">
+                            <!--Tabla de Closed-->
+                            <table id="closedTable" class="table table-bordered table-hover table-responsive" data-toggle="table"
+                                   data-sortable="true" data-search="true" data-pagination="true" data-sort-name="date" data-sort-order="desc">
+                                <thead>
+
+                                    <tr>
+                                        <th data-field="fileID">File</th>
+                                        <th data-field="plant" data-sortable="true">Plant</th>
+                                        <th data-field="pID" data-sortable="true">Product ID</th>
+                                        <th data-field="issue" data-sortable="true">Issue</th>
+                                        <th data-field="aItem" data-sortable="true">Action Item</th>
+                                        <th data-field="status" data-sortable="true">Status</th>
+                                        <th data-field="date" data-sortable="true">Date</th>
+                                        <th data-field="tDate" data-sortable="true">Target Date</th>
+                                        <th data-field="cDate" data-sortable="true">Close Date</th>
+                                        <th data-field="owner" data-sortable="true">Owner</th>
+                                        <th data-field="sUpdate" data-sortable="true">Status Update</th>
+                                        <th data-field="update" class="@(Model.HVM.found==false? "block":"")" id="update">Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="closedTableBody">
+
+                                    @foreach (actionList accion in Model.HVM.listaAcciones)
+                                    {
+                                        if (accion.status == "Closed")
+                                        {
+                                            <tr id="@accion.reportID">
+                                                @if (accion.files.Count == 0)
+                                                {
+                                                    <td>No file found</td>
+
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <form class="" method="post" action="~/home/getFile" target="_blank">
+                                                            <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                            <div class="btn-group-vertical">
+                                                                <button type="submit" class="btn btn-link" id="file">
+                                                                    <span class="glyphicon glyphicon-paperclip"></span>
+                                                                </button>
+                                                            </div>
+
+                                                        </form>
+                                                    </td>
+
+                                                }
+                                                <td>@accion.plant</td>
+                                                <td>@accion.productID</td>
+                                                <td>@accion.issue</td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.actionItem
+                                                    </div>
+                                                </td>
+                                                <td>@accion.status</td>
+                                                <td> @(accion.date != null ? accion.date.ToString("yyyy/MM/dd") : "No Initial Date") </td>
+                                                <td>@(accion.targetDate != null ? accion.targetDate.Value.ToString("yyyy/MM/dd") : "TBD")</td>
+                                                <td>
+                                                    @(accion.closed != null ? accion.closed.Value.ToString("yyyy/MM/dd") : "Ongoing")
+                                                </td>
+                                                <td>
+                                                    @(accion.owner != "test" ? accion.owner : "")
+                                                    @if (accion.owner == "test")
+                                                    {
+                                                        foreach (owner o in accion.owners)
+                                                        {
+                                                            @(o.name + ", ")
+                                                        }
+                                                    }
+
+
+
+                                                </td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.statusUpdate
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @*<button type="button" data-toggle="modal" class="btn btn-default btnModal" data-target="#modal_@accion.reportID">
+                                                        <button type="button" data-id="@accion.reportID" name="btnModal" class="btn btn-default btnModal" >
+                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                        Update
+                                                    </button>*@
+                                                    <button type="button" class="btn btn-default updater" data-id="@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>Update
+                                                    </button>
+                                                    <form class="" method="post" action="~/home/delete">
+                                                        <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                        <div class="btn-group-vertical">
+                                                            <button type="submit" class="btn btn-danger"
+                                                                    onclick="return confirm('Warning: You are about to delete an Action. ' +
+                                                                                            'If you do this, all the Lesson information and its files will be lost. ' +
+                                                                                            'Are you sure yo want to delete it?')">
+                                                                <span class="glyphicon glyphicon-remove"></span>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    }
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                        <div id="table4" class="tab-pane fade">
+
+                            <!--Tabla de Holds-->
+                            <table id="criticalTable" class="table table-bordered table-hover table-responsive" data-toggle="table"
+                                   data-sortable="true" data-pagination="true">
+
+                                <thead>
+                                    <tr>
+                                        <th data-field="fileID">File</th>
+                                        <th data-field="plant" data-sortable="true">Plant</th>
+                                        <th data-field="pID" data-sortable="true">Product ID</th>
+                                        <th data-field="issue" data-sortable="true">Issue</th>
+                                        <th data-field="aItem" data-sortable="true">Action Item</th>
+                                        <th data-field="status" data-sortable="true">Status</th>
+                                        <th data-field="date" data-sortable="true">Date</th>
+                                        <th data-field="tDate" data-sortable="true">Target Date</th>
+                                        <th data-field="cDate" data-sortable="true">Close Date</th>
+                                        <th data-field="owner" data-sortable="true">Owner</th>
+                                        <th data-field="sUpdate" data-sortable="true">Status Update</th>
+                                        <th data-field="update" class="@(Model.HVM.found==false? "block":"")" id="update">Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="criticalTableBody">
+
+                                    @foreach (actionList accion in Model.HVM.listaAcciones)
+                                    {
+                                        if (accion.status == "On Hold")
+                                        {
+                                            <tr id="@accion.reportID">
+                                                @if (accion.files.Count == 0)
+                                                {
+                                                    <td>No file found</td>
+
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <form class="" method="post" action="~/home/getFile" target="_blank">
+                                                            <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                            <div class="btn-group-vertical">
+                                                                <button type="submit" class="btn btn-link" id="file">
+                                                                    <span class="glyphicon glyphicon-paperclip"></span>
+                                                                </button>
+                                                            </div>
+
+                                                        </form>
+                                                    </td>
+
+                                                }
+                                                <td>@accion.plant</td>
+                                                <td>@accion.productID</td>
+                                                <td>@accion.issue</td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.actionItem
+                                                    </div>
+                                                </td>
+                                                <td>@accion.status</td>
+                                                <td> @(accion.date != null ? accion.date.ToString("yyyy/MM/dd") : "No Initial Date") </td>
+                                                <td>@(accion.targetDate != null ? accion.targetDate.Value.ToString("yyyy/MM/dd") : "TBD")</td>
+                                                <td>
+                                                    @(accion.closed != null ? accion.closed.Value.ToString("yyyy/MM/dd") : "Ongoing")
+                                                </td>
+                                                <td>
+                                                    @(accion.owner != "test" ? accion.owner : "")
+                                                    @if (accion.owner == "test")
+                                                    {
+                                                        foreach (owner o in accion.owners)
+                                                        {
+                                                            @(o.name + ", ")
+                                                        }
+                                                    }
+
+
+
+                                                </td>
+                                                <td>
+                                                    <div class="scroll">
+                                                        @accion.statusUpdate
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @*<button type="button" data-toggle="modal" class="btn btn-default" data-target="#modal_@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                        Update
+                                                    </button>*@
+                                                    <button type="button" class="btn btn-default updater" data-id="@accion.reportID">
+                                                        <span class="glyphicon glyphicon-edit"></span>Update
+                                                    </button>  
+                                                    <form class="" method="post" action="~/home/delete">
+                                                        <input type="hidden" name="reportID" value="@accion.reportID" />
+                                                        <div class="btn-group-vertical">
+                                                            <button type="submit" class="btn btn-danger"
+                                                                    onclick="return confirm('Warning: You are about to delete an Action. ' +
+                                                                                            'If you do this, all the Lesson information and its files will be lost. '+
+                                                                                            'Are you sure yo want to delete it?')">
+                                                                <span class="glyphicon glyphicon-remove"></span>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    }
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    </div>
+                    <!--Enlace p/ registrar una nueva accion-->
+                    <a href="http://10.7.20.5//lessondb/registerLesson/register" class="btn btn-success" role="button" style="float:left">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>New Action
+                    </a>
+
+                </div>
+
+                <div class="panel-footer">
+
+
+
+                </div>
+            </div>
+        </div>
+        <!--Taba con la tabla que contiene las Lesson List-->
+        <div id="menu3" class="tab-pane fade @(Model.HVM.updated==true?" in active":"")">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center">Lesson List</h2>
+                    <br />
+                </div>
+                @*<div id="reportrange" class="pull-left" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%; margin-bottom:30px">
+                    <span></span>
+                    <i class="glyphicon glyphicon-calendar fa fa-calendar" style="float:right"></i>
+                </div>*@
+                <!--Panel de Opciones de la Lesson List Tab-->
+                <div class="panel-body">
+                    <ul class="nav nav-pills nav-justified">
+                        <!--Boton para ir a la pagina de registro-->
+                        <li>
+                            <a href="~/registerLesson/lesson" class="btn btn-success col-md-2">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>New Lesson
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="col-md-12">
+                        <div class="form-group">
+
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <!--Tabs de Action List"-->
+                        <div id="table1" class="tab-pane fade in active">
+                            <!--Tabla de In Progress-->
+                            <table id="mainTableLesson" class="table table-bordered table-hover table-responsive" data-toggle="table"
+                                   data-sortable="true" data-search="true" data-pagination="true" data-sort-name="date" data-sort-order="desc" data-unique-id="LessonID">
+                                <thead>
+                                    <tr>
+                                        <th data-field="FileAttachment">File</th>
+                                        <th data-field="Comment" data-sortable="true">Comment</th>
+                                        <th data-field="DateCreated" data-sortable="true">Date Created</th>
+                                        <th data-field="LessonID" data-sortable="true">ID</th>
+                                        <th data-field="PlantInitiator" data-sortable="true">Plant Initiator</th>
+                                        <th data-field="ProductAffected" data-sortable="true">Product Affected</th>
+                                        <th data-field="AreaAffected" data-sortable="true">Area Affected</th>
+                                        <th data-field="ProblemDescription" data-sortable="true">Problem Description</th>
+                                        <th data-field="Rootcause" data-sortable="true">Root Cause</th>
+                                        <th data-field="CorrectiveAction" data-sortable="true">Corrective Action</th>
+                                        <th data-field="Source" data-sortable="true">Source</th>
+                                        <th data-field="BHUNStatus" data-sortable="true">BHUN Status</th>
+                                        <th data-field="BDMStatus" data-sortable="true">BDM Status</th>
+                                        <th data-field="BXLStatus" data-sortable="true">BXL Status</th>
+                                        <th data-field="Author" data-sortable="true">Author</th>
+                                        <th data-field="Actions" class="" id="update">Update</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mainTableBody">
+                                  @foreach (var lesson in Model.LVM.LessonList)
+                                  {
+                                      <tr>
+                                          @if (lesson.LessonAttachments.Count == 0)
+                                          {
+                                            <td>No file found</td>
+                                          }
+                                          else
+                                          {
+                                            <td>
+                                                <form class="FormFiles" method="get" action="~/home/GetFilesLesson" target="Map">
+                                                    <input type="hidden" name="LessonListID" value="@lesson.LessonListID" />
+                                                    <div class="btn-group-vertical">
+                                                        <button type="submit" class="btn btn-link" id="file">
+                                                            <span class="glyphicon glyphicon-paperclip"></span>
+                                                        </button>
+                                                    </div>
+
+                                                </form>
+                                            </td>
+                                          }
+                                          <td>
+                                              <div class="scroll">
+                                                  @lesson.Comment
+                                              </div>  
+                                          </td>
+                                          <td>@lesson.DateCreated.Value.ToShortDateString()</td>
+                                          <td>@lesson.LessonID</td>
+                                          <td>@lesson.PlantInitiator.Plant</td>
+                                          <td>@lesson.ProductAffected.Product</td>
+                                          <td>@lesson.AreaAffected.Area</td>
+                                          <td>
+                                            <div class="scroll">
+                                                @lesson.ProblemDescription
+                                            </div>
+                                          </td>
+                                          <td>
+                                            <div class="scroll">
+                                                @lesson.RootCause
+                                            </div>
+                                          </td>
+                                          <td>
+                                            <div class="scroll">
+                                                @lesson.CorrectiveAction
+                                            </div>
+                                          </td>
+                                          <td>@lesson.Source.Description</td>
+                                          <td>@lesson.StatusPlant1.Status</td>
+                                          @if (lesson.StatusPlant != null)
+                                          { <td>@lesson.StatusPlant.Status</td> 
+                                          }
+                                          else {
+                                              <td></td>
+                                          }
+                                          @if (lesson.StatusPlant2 != null)
+                                          {
+                                            <td>@lesson.StatusPlant2.Status</td>
+                                          }
+                                          else {
+                                              <td></td>
+                                          }
+                                          
+                                          @if (@lesson.owner != null)
+                                          {
+                                          <td>@lesson.owner.name</td>
+                                          }
+                                          else
+                                          {
+                                              <td>N/A</td>
+                                          }
+
+                                          <td>
+                                              <button type="button" class="btn btn-default updatelesson" data-id="@lesson.LessonListID">
+                                                  <span class="glyphicon glyphicon-edit"></span>Update
+                                              </button>
+                                              <div class="btn-group-vertical" >
+                                                      <button type="button" 
+                                                              class="btn btn-danger deletelesson"
+                                                              onclick="return confirm('Warning: You are about to delete an Lesson. ' +
+                                                                                            'If you do this, all the Lesson information and its files will be lost. ' +
+                                                                                            'Are you sure yo want to delete it?')" 
+                                                              data-id="@lesson.LessonListID">
+                                                          <span class="glyphicon glyphicon-remove"></span>
+                                                          Delete
+                                                      </button>
+                                                </div>
+                                          </td>
+                                      </tr>
+                                  }
+                                </tbody>
+                                <tfoot id="mainTableFooter"></tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <!--Enlace p/ registrar una nueva accion-->
+                    <a href="http://10.7.20.5//lessondb/registerLesson/lesson" class="btn btn-success col-md-2" role="button" style="float:left">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>New Action
+                    </a>
+
+                </div>
+
+                <div class="panel-footer">
+
+                </div>
+            </div>
+        </div>
+      
+    </div>
+   
+   @*Nuevo modal*@
+    <form class="modal fade" method="post" action="~/home/actualizar" id="neo_modal" enctype="multipart/form-data">
+        <div class="modal-dialog">
+            
+            <div class="modal-content">
+                
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Update Data</h4>
+                </div>
+                
+                <div class="modal-body">
+                    
+                    <!--repID=ReportID   FIELDS REPORT OF ACTION LIST-->
+                    <input type="hidden" name="repID" value="" id="repID" />
+                    
+                    <input name="permiso" type="hidden" value="@Model.HVM.level" />
+                    
+                    <div class="form-group center-block">
+                        <label>Plant</label>
+                        <select class="form-control" name="plt" id="plant">
+                            <option id="allOpt" value="ALL">ALL</option>
+                            <option id="bdmOpt" value="BDM">BDM</option>
+                            <option id="bhunOpt" value="BHUN">BHUN</option>
+                            <option id="bxlOpt" value="BXL">BXL</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product ID</label>
+                        <input name="pID" id="pID" type="text" value="" maxlength="13" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Issue</label>
+                        <input name="iss" id="issue" type="text" value="" maxlength="100" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Action Item</label>
+                        <textarea name="aIt" id="aIt" style="resize:none" class="form-control" maxlength="1000"> </textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority Level</label>
+                        <select class="form-control" name="pri" id="priority"></select>
+                        @*<select class="form-control" name="pri">
+                            @if (accion.status == "Closed")
+                            {
+                                <option value="None">None</option>
+                            }
+                            @if (accion.status != "Closed")
+                            {
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                            }
+                        </select>*@
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="form-control" name="sta" id="status">
+                            <option class="ipr" value="In Progress">In Progress</option>
+                            <option class="del" value="Delayed">Delayed</option>
+                            <option class="onh" value="On Hold">On Hold</option>
+                            <option class="clo" value="Closed">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Date</label>
+                        <input name="tDa" id="tDa" type="date" value="" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Closed Date</label>
+                        <div class="input-group">
+                            <input name="cls"  type="date" class="form-control" id="selDate" value="" readonly="readonly" />
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" onclick="toggleDate();">
+                                    Modify
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="oldOwner"></div>
+                    </div>
+                    
+                    @*truchas*@
+                    <div class="form-group">
+                        <label>Number of Owners</label>
+                        <select class="form-control" name="ownerCounter" id="ownerCounter">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Owner</label>
+                        <select class="form-control" name="owner" id="owner1">
+                            @foreach (var o in Model.HVM.listaOwners)
+                            {
+                                <option value="@o.username">@o.name</option>
+                            }        
+                        </select>
+                    </div>
+          
+                    <div class="form-group hidden" id="ownerCount2">
+                        <label>Owner</label>
+                        <select class="form-control" name="owner2" id="owner2">
+                            <option value="default">Select 2nd Owner</option>
+                            @foreach (var o in Model.HVM.listaOwners)
+                            {
+                                <option value="@o.username">@o.name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group hidden" id="ownerCount3">
+                        <label>Owner</label>
+                        <select class="form-control" name="owner3" id="owner3">
+                            <option value="default">Select 3rd Owner</option>
+                            @foreach (var o in Model.HVM.listaOwners)
+                            {
+                                <option value="@o.username">@o.name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group hidden" id="ownerCont4">
+                        <label>Owner</label>
+                        <select class="form-control" name="owner4" id="owner4">
+                            <option value="default">Select 4th Owner</option>
+                            @foreach (var o in Model.HVM.listaOwners)
+                            {
+                                <option value="@o.username">@o.name</option>
+                            } 
+                        </select>
+                    </div>
+
+                    <div class="form-group hidden" id="ownerCont5">
+                        <label>Owner</label>
+                        <select class="form-control" name="owner5" id="owner5">
+                            <option value="default">Select 5th Owner</option>
+                            @foreach (var o in Model.HVM.listaOwners)
+                            {
+                                <option value="@o.username">@o.name</option>
+                            }
+                        </select>
+                    </div>
+
+                    @*truchas*@
+
+                    <div class="form-group">
+                        <label>Status Update</label>
+                        <textarea name="sUp" style="resize:none" class="form-control" id="sUp"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Upload File (Word, Excel, PowerPoint and PDF files only)
+                        </label>
+                        <input type="file" name="fileup" class="file" data-show-preview="false" data-show-upload="false">
+                        <div>(To see a previously added file, please click on the correspondent clip icon in the Action List table)</div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+    @* MODAL PARA EDITAR LECCIONES APRENDIDAS*@
+    <form id="LessonModal" class="modal fade" method="post" action="~/home/UpdateLesson" enctype="multipart/form-data">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Update Data Lesson</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- FIELDS REPORT OF LESSON LIST-->
+                    <input type="hidden" name="LessonListID" value="" id="LessonListID" /> <!-- LESSONLISTID ID PRINCIPAL -->
+                    <input type="hidden" name="DateCreated" value="" id="DateCreated" />
+
+                    <input name="permiso" type="hidden" value="@Model.HVM.level" />
+
+                    <!-- ID LESSON-->
+                    <div class="form-group form-inline">
+                        <label>ID:</label>
+                        <input name="LessonID" id="LessonID" type="text" value="" maxlength="13" class="form-control"/>
+                    </div>
+
+                    <!-- PLANT INITIATOR-->
+                    <div class="form-group center-block">
+                        <label>Plant Initiator:</label>
+                        <select class="form-control" name="PlantInitiatorID" id="PlantInitiatorID">
+                            @foreach (var plant in Model.LVM.PlantInitiator) {
+                                <option value="@plant.PlantInitiatorID">@plant.Plant</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- PRODUCT AFFECTED-->
+                    <div class="form-group center-block">
+                        <label>Product Affected:</label>
+                        <select class="form-control" name="ProductAffectedID" id="ProductAffectedID">
+                            @foreach (var product in Model.LVM.ProductAffected)
+                            {
+                                <option value="@product.ProductAffectedID">@product.Product</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- AREA AFFECTED-->
+                    <div class="form-group center-block">
+                        <label>Area Affected:</label>
+                        <select class="form-control" name="AreaAffectedID" id="AreaAffectedID">
+                            @foreach (var area in Model.LVM.AreaAffected)
+                            {
+                                <option value="@area.AreaAffectedID">@area.Area</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- PROBLEM DESCRIPTION -->
+                    <div class="form-group">
+                        <label>Problem Description:</label>
+                        <textarea name="ProblemDescription" id="ProblemDescription" style="resize:none" class="form-control" maxlength="1000"> </textarea>
+                    </div>
+
+                    <!-- ROOT CAUSE -->
+                    <div class="form-group">
+                        <label>Root Cause:</label>
+                        <textarea name="RootCause" id="RootCause" style="resize:none" class="form-control" maxlength="1000"> </textarea>
+                    </div>
+
+                    <!-- CORECTIVE ACTION -->
+                    <div class="form-group">
+                        <label>Corrective Action:</label>
+                        <textarea name="CorrectiveAction" id="CorrectiveAction" style="resize:none" class="form-control" maxlength="1000"> </textarea>
+                    </div>
+
+                    <!-- SOUCRCE -->
+                    <div class="form-group center-block">
+                        <label>Source:</label>
+                        <select class="form-control" name="SourceID" id="SourceID">
+                            @foreach (var source in Model.LVM.Source)
+                            {
+                                <option value="@source.SourceID">@source.Description</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- BHUN STATUS -->
+                    <div class="form-group center-block">
+                        <label>BHUN Status:</label>
+                        <select class="form-control" name="BHUNStatus" id="BHUNStatus">
+                            @foreach (var status in Model.LVM.StatusPlant)
+                            {
+                                <option value="@status.StatusPlantID">@status.Status</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- BDM STATUS -->
+                    <div class="form-group center-block">
+                        <label>BDM Status:</label>
+                        <select class="form-control" name="BDMStatus" id="BDMStatus">
+                            @foreach (var status in Model.LVM.StatusPlant)
+                            {
+                                <option value="@status.StatusPlantID">@status.Status</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- BXL STATUS -->
+                    <div class="form-group center-block">
+                        <label>BXL Status:</label>
+                        <select class="form-control" name="BXLStatus" id="BXLStatus">
+                            @foreach (var status in Model.LVM.StatusPlant)
+                            {
+                                <option value="@status.StatusPlantID">@status.Status</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- AUTHOR -->
+                    <div class="form-group center-block">
+                        <label>Author:</label>
+                        <select class="form-control" name="Author" id="Author">
+                            @foreach (var owner in Model.LVM.Owners)
+                            {
+                                <option value="@owner.username">@owner.name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- COMMENT -->
+                    <div class="form-group">
+                        <label>Comment:</label>
+                        <textarea name="Comment" id="Comment" style="resize:none" class="form-control" maxlength="1000"> </textarea>
+                    </div>
+                    
+                    @*TO UPLOAD FILELESSON*@
+                    <div class="form-group">
+                        <label>
+                            Upload File (Word, Excel, PowerPoint and PDF files only)
+                        </label>
+                        <input type="file" name="FileLesson" class="file" data-show-preview="false" data-show-upload="false">
+                        <div>(To see a previously added file, please click on the correspondent clip icon in the Action List table)</div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    
+    
+    
+    <script type="text/javascript">
+
+        var global = {
+            rowDelete: null,
+            rowIndex: null,
+            rowUpdate: null
+        };
+
+        $(document).ready(function () {
+            HideSelects();
+            //TODO: AQUI ESTA EL CODIGO MATON PARA ACTUALIZAR
+            $('.tab-content').on("click", '.updater', function () {
+                //var url = "http://localhost:52783/home/Asignacion?id=" + $(this).attr("data-id");
+                var url = "http://10.7.20.5/lessondb/home/Asignacion?id=" + $(this).attr("data-id");
+
+                var date, fullDate, ownCount;
+                var day, month, today;
+                $.getJSON(url, function (r) {
+                    debugger;
+                    $('#repID').val(r.repID.toString());
+                    if (r.plant == 'BDM') $('#bdmOpt').attr('selected', 'selected');
+                    if (r.plant == 'BHUN') $('#bhunOpt').attr('selected', 'selected');
+                    if (r.plant == 'BXL') $('#bxlOpt').attr('selected', 'selected');
+                    $('#pID').val(r.pID);
+                    $('#issue').val(r.issue);
+                    $('#aIt').html(r.aIt);
+
+                    if (r.status == "Closed") $('#priority').html('<option value="None">None</option>');
+                    else {
+                        $('#priority').html('<option value="Low">Low</option><option class="medium" value="Medium">Medium</option>' +
+                            '<option class="high" value="High">High</option>');
+                        if (r.priority == "Medium") $('.medium').attr('selected', 'selected');
+                        if (r.priority == "High") $('.high').attr('selected', 'selected');
+                    }
+                    if (r.status == "Delayed") $('#inp').attr('selected', 'selected');
+                    if (r.status == "On Hold") $('#onh').attr('selected', 'selected');
+                    if (r.status == "Closed") $('#clo').attr('selected', 'selected');
+
+                    debugger;
+                    if (r.tDa != null) {
+                        fullDate = new Date(parseInt(r.tDa.replace("/Date(", "").replace(")/", "")));
+                        date = fullDate.toLocaleString();
+
+                        day = ("0" + fullDate.getDate()).slice(-2);
+                        month = ("0" + (fullDate.getMonth() + 1)).slice(-2);
+                        today = fullDate.getFullYear() + "-" + (month) + "-" + (day);
+
+                        $('#tDa').val(today);
+                    }
+                    if (r.closed != null) {
+                        fullDate = new Date(parseInt(r.closed.replace("/Date(", "").replace(")/", "")));
+                        date = fullDate.toLocaleString();
+                        day = ("0" + fullDate.getDate()).slice(-2);
+                        month = ("0" + (fullDate.getMonth() + 1)).slice(-2);
+                        today = fullDate.getFullYear() + "-" + (month) + "-" + (day);
+
+                        $('#selDate').val(today);
+                    }
+
+                    if (r.ownName.length < 1) {
+                        $('#oldOwner').html("<label>Previous Owner (Please Add This Owner on the Owners List below)</label>" +
+                    "<input name='own' class='provOwner' type='text' value maxlength='30' />")
+                        $('#provOwner').val(r.owner);
+                    }
+                    else {
+                        if (r.ownName.length >= 1) $('#owner1').val(r.ownName[0]);
+                        if (r.ownName.length >= 2) {
+                            $('#ownerCounter').val(2);
+                            $('#ownerCount2').removeClass('hidden');
+                            $('#owner2').val(r.ownName[1]);
+                        }
+                        if (r.ownName.length >= 3) {
+                            $('#ownerCounter').val(3);
+                            $('#ownerCount3').removeClass('hidden');
+                            $('#owner3').val(r.ownName[2]);
+                        }
+                        if (r.ownName.length >= 4) {
+                            $('#ownerCounter').val(4);
+                            $('#ownerCount4').removeClass('hidden');
+                            $('#owner4').val(r.ownName[3]);
+                        }
+                        if (r.ownName.length >= 5) {
+                            $('#ownerCounter').val(5);
+                            $('#ownerCount5').removeClass('hidden');
+                            $('#owner5').val(r.ownName[4]);
+                        }
+                    }
+                    $('#sUp').html(r.sUp);
+                    $('#neo_modal').modal();
+                });
+
+            });
+
+            $('.tab-content').on('click', '.updatelesson', function () {
+                //var url = "http://localhost:52783/home/GetLesson?id=" + $(this).attr("data-id");
+                var url = "http://10.7.20.5/lessondb/home/GetLesson?id=" + $(this).attr("data-id");
+
+                // Put row index in button to update row;
+                global.rowIndex = parseInt($(this).parent().parent().data("index"));
+
+
+                $.getJSON(url, function (data) {
+                    debugger;
+                    var fullDate = new Date(parseInt(data.DateCreated.replace("/Date(", "").replace(")/", "")));
+                    var date = fullDate.toLocaleString();
+
+                    var day = ("0" + fullDate.getDate()).slice(-2);
+                    var month = ("0" + (fullDate.getMonth() + 1)).slice(-2);
+                    var today = fullDate.getFullYear() + "-" + (month) + "-" + (day);
+
+                    $("#LessonListID").val(data.LessonListID);
+                    $("#DateCreated").val(today);
+                    $("#LessonID").val(data.LessonID);
+                    $("#PlantInitiatorID").val(data.PlantInitiatorID);
+                    $("#ProductAffected").val(data.ProductAffected);
+                    $("#AreaAffected").val(data.AreaAffected);
+                    $("#ProblemDescription").val(data.ProblemDescription);
+                    $("#RootCause").val(data.RootCause);
+                    $("#CorrectiveAction").val(data.CorrectiveAction);
+                    $("#SourceID").val(data.SourceID);
+                    $("#BHUNStatus").val(data.BHUNStatus);
+                    $("#BDMStatus").val(data.BDMStatus);
+                    $("#BXLStatus").val(data.BXLStatus);
+                    $("#Comment").val(data.Comment);
+                });
+                $('#LessonModal').modal();
+            })
+
+            $('#LessonModal').on('submit', function (event) {
+                event.preventDefault();
+                var data = new FormData($(this)[0]);
+                //var url = "http://localhost:52783/home/UpdateLesson";
+                var url = "http://10.7.20.5/lessondb/home/UpdateLesson";
+                $.ajax({
+                    url: url,
+                    method: 'post',
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                })
+                .done(function (lesson) {
+
+                    $("#mainTableLesson").bootstrapTable('updateRow', {
+                        index: global.rowIndex,
+                        row: {
+                            Comment: lesson.Comment,
+                            DateCreated: lesson.DateCreated,
+                            LessonID: lesson.LessonID,
+                            PlantInitiator: lesson.PlantInitiator,
+                            ProductAffected: lesson.ProductAffected,
+                            AreaAffected: lesson.AreaAffected,
+                            ProblemDescription: lesson.ProblemDescription,
+                            RootCause: lesson.RootCause,
+                            CorrectiveAction: lesson.CorrectiveAction,
+                            Source: lesson.Source,
+                            BHUNStatus: lesson.BHUNStatus,
+                            BDMStatus: lesson.BDMStatus,
+                            BXLStatus: lesson.BXLStatus,
+                            Author: lesson.Author
+                        }
+                    });
+                    debugger;
+                    alert("Successfull Update!!!");
+                    $("#LessonModal").modal('hide');
+
+                })
+                .error(function (xhr, errorText, ethrow) {
+                    console.log(xhr);
+                    console.log(errorText);
+                    console.log(ethrow);
+                });
+
+
+            });
+            $mainTableLesson = $("#mainTableLesson");
+
+            function DeleteRowTable(id)
+            {
+                $mainTableLesson.bootstrapTable('removeByUniqueId', id);
+                $mainTableLesson.bootstrapTable('refresh');
+            }
+
+            $("#mainTableLesson").on('click','.deletelesson', function () {
+                var lessonID = $(this).data("id");
+                //var url = "http://localhost:52783/home/DeleteLesson";
+                var url = "http://10.7.20.5/lessondb/home/DeleteLesson";
+                
+                $.post(url, { LessonListID: lessonID }, function (data) {
+                    debugger;
+                    if (data != false) {
+                        DeleteRowTable(data);
+                    }
+                    else {
+                        alert("Hubo un error en la eliminación");
+                    }
+
+                }).error(function (xhr, errorText, etrow) {
+                    alert("Error al eliminar")
+                });
+            });
+
+            $(".FormFiles").on('submit', function (event) {
+                event.preventDefault();
+                var map = window.open('', 'Map', 'top=200,left=400,width=1000,height=500,toolbar=1,resizable=0'); this.submit(); return false;
+
+                if (map) {
+                    $(this).submit();
+                } else {
+                    alert('You must allow popups for this map to work.');
+                }
+
+
+            })
+
+
+        });
+
+    </script>
+    
+    <script type="text/javascript">
+        var filterDate = {
+            start: new Date(),
+            end: new Date(),
+            id : 0,
+            cuerda:[]
+        }
+
+        var datesGraphLesson = {
+            start: new Date().toISOString().substring(0, 10),
+            end: new Date().toISOString().substring(0, 10)
+        }
+
+        //date range
+        $(document).ready(function () {
+
+            function filter(starts, ends) {
+
+                var url= "http://10.7.20.5/lessondb/home/filterdate";
+                //var url = "http://localhost:52783/home/filterdate";
+                //var url = "../../home/filterdate";
+                debugger
+                var lvl = parseInt(document.getElementById('permitlvl').value.toString());
+                $.getJSON(url, { ini: starts, fin: ends,lvl:lvl }, function (r) {
+
+                    
+                    $('table').remove();
+                    $('#table1').html(r[0]);
+                    $('#table2').html(r[1]);
+                    $('#table4').html(r[2]);
+                    $('#table3').html(r[3]);
+                    $('[data-toggle="table"]').bootstrapTable();
+                })
+
+            }
+
+            function cb(start, end) {
+                
+                filterDate.start = start._d;
+                filterDate.end = end._d;
+                filter(start.format('MM-DD-YYYY'), end.format('MM-DD-YYYY'))
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                
+            }
+
+           
+
+            
+            $('#reportrange span').html("Select Date Range");
+            $('#reportrange').daterangepicker({
+                showDropdowns: true,
+                linkedCalendars: false,
+                startDate: moment("2015-01-01"),
+                endDate:moment(),
+                opens: 'center',
+                ranges: {
+                    'All':[moment("2016-01-01"),moment()],
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, cb);
+
+            //$('#datesGraphLesson span').html("Select Date Range");
+            $('#datesGraphLesson').daterangepicker({
+                showDropdowns: true,
+                linkedCalendars: false,
+                startDate: moment().startOf('month'),
+                endDate: moment(),
+                opens: 'center',
+                ranges: {
+                    'All': [moment("1999-01-01"), moment()],
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'This Year':[moment().startOf('year'),moment()]
+                }
+            }, InitialGraphLesson);
+
+            function InitialGraphLesson(start, end, label)
+            {
+                $('#datesGraphLesson span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                //alert($('#datesGraphLesson span').text());
+                console.log(start, end);
+                datesGraphLesson.start = start.format("YYYY-MM-DD"),
+                datesGraphLesson.end = end.format("YYYY-MM-DD")
+
+            }
+
+            InitialGraphLesson(moment().startOf('month'),moment());
+
+        });
+    </script>
+   
+    <script type="text/javascript">
+        //Control de Tabs con los botones en el Tab Home
+        $(document).ready(function () {
+            
+            $('#buttonGraph').on('click', function () { activaTab('menu1') });
+
+            $('#buttonTable').on('click', function () { activaTab('menu2') });
+
+            $('#buttonLesson').on('click', function () { activaTab('menu3') });
+
+            $.get()
+
+            function activaTab(tab) {
+                $('#mainUL a[href="#' + tab + '"]').tab('show');
+
+            }
+        });
+    </script>
+ 
+    <script type="text/javascript">
+            //Control de Paginacion para tablas: Se ha creado por un bug en el despliegue de las tablas.
+            $(document).ready(function () {
+                function revealTables() {
+                    if (flag1 == false) {
+
+                        $dTbl.bootstrapTable('togglePagination');
+                        $clTbl.bootstrapTable('togglePagination');
+                        $crTbl.bootstrapTable('togglePagination');
+                        flag1 =true;
+                    }
+                }
+                var tabl2 = document.getElementById('delayedTable');
+                var flag = false;
+                var flag1 = false;
+                var tabl3 = document.getElementById('closedTable');
+                var tabl4 = document.getElementById('criticalTable');
+                var $dTbl = $('#delayedTable');
+                var $clTbl = $('#closedTable');
+                var $crTbl = $('#criticalTable');
+                var li1 = document.getElementById('li1');
+                var li2 = document.getElementById('li2');
+                var li3 = document.getElementById('li3');
+                $('#menu2b').on('click', function () {
+                    
+                    if (flag == false) {
+                        flag = true
+                        li1.setAttribute('class', 'active');
+                        li2.classList.remove('active');
+                        li3.classList.remove('active');
+                        $dTbl.bootstrapTable('togglePagination');
+                        $clTbl.bootstrapTable('togglePagination');
+                        $crTbl.bootstrapTable('togglePagination');
+                        $('#tab2').on('click', revealTables);
+                        $('#tab3').on('click', revealTables);
+                    }
+                })})
+            
+            
+    </script>
+
+    <!----------------------------- Scripts para las graficas ------------------------------->
+    <!--Progress jqplot script-->
+    <script type="text/javascript">
+        function HideSelects()
+        {
+            $('#yearDiv').addClass('hidden');
+            $('#plantDiv').addClass('hidden');
+            $('#yearDivLesson').addClass('hidden');
+            $('#yearDivLessonYear').addClass('hidden');
+        }
+
+
+    $(document).ready(function () {
+        $('#progress').on('click', function () {
+            $('#chart1').empty();
+            HideSelects();
+
+            //$('#chartInfo').hide();
+            var texto = ''
+            $('#chartInfo').html(texto);
+
+            var url = "http://10.7.20.5/lessondb/home/graficarA";
+            //var url = "http://s07dc2/lessondb/home/graficarA";
+            //var url = "http://localhost:52783/home/graficarA";
+            url += "?startDate=" + datesGraphLesson.start + "&finalDate=" + datesGraphLesson.end;
+            debugger;
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function (data) {
+                    var msg = document.getElementById('lblInfo');
+                    if (data.length != 0) {
+
+                        if (!msg.classList.contains('hidden')) {
+                            msg.classList.add("hidden");
+                        }
+
+                        var plot = $.jqplot('chart1', [[[data.tickProgress, data.Progress], [data.tickclsOnTime, data.clsOnTime], [data.tickclsLate, data.clsLate]]], {
+                            animate: true,
+                            series: [{
+                                renderer: $.jqplot.BarRenderer, rendererOptions: { varyBarColor: true }
+                            }],
+                            seriesColors: ['#385ca9', '#2bb600', '#e70000', '#C7754C', '#17BDB8'],
+                            axes: {
+                                xaxis: {
+
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    tickRenderer: $.jqplot.CanvasAxisTickRenderer
+                                }
+                            },
+                            seriesDefaults: {
+                                pointLabels: {
+                                    show: true
+                                }
+                            }
+                        });
+
+                        $('#chart1').bind('jqplotDataHighlight', function (ev, seriesIndex, pointIndex, datito) {
+                            var texto = '';
+                            $('#chartInfo').html(texto);
+                        });
+
+                        $('#chart1').bind('jqplotDataUnhighlight', function (ev) {
+                            $('#chartInfo').html('');
+                        });
+                    }
+                    else {
+                        msg.classList.remove("hidden")
+                    }
+                },
+                error: function () {
+                    alert("AJAX error reading details.");
+                }
+            });
+        });
+    });
+    </script>
+
+    <!--Closed % jqplot script-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#closed').on('click', function () {
+                $('#chart1').empty();
+                HideSelects();
+
+                var texto = ''
+                $('#chartInfo').html(texto);
+                
+
+                var url= "http://10.7.20.5/lessondb/home/graficarB";
+                //var url= "http://s07dc2/lessondb/home/graficarB";
+                //var url = "http://localhost:52783/home/graficarB";
+                url += "?startDate=" + datesGraphLesson.start + "&finalDate=" + datesGraphLesson.end;
+
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    success: function (data) {
+                        var msg = document.getElementById('lblInfo');
+                        if (data.length != 0) {
+
+                            $('#chartInfo').hide();
+                            if (!msg.classList.contains('hidden')) {
+                                msg.classList.add("hidden")
+                            }
+                            var plot = $.jqplot('chart1', [[[data.tickprcOnTime, data.prcOnTime], [data.tickprcLate, data.prcLate]]], {
+                                animate: true,
+                                series: [{
+                                    renderer: $.jqplot.BarRenderer, rendererOptions: { varyBarColor: true }
+                                }],
+                                seriesColors: ['#2bb600', '#e70000', '#C7754C', '#17BDB8', '#385ca9'],
+                                axes: {
+                                    xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        tickRenderer: $.jqplot.CanvasAxisTickRenderer
+                                    },
+                                    yaxis: {
+                                        tickOptions: {
+                                            formatString: function () { return '%s%'; }()
+                                        }
+
+                                    }
+                                },
+                                seriesDefaults: {
+                                    pointLabels: {
+                                        show: true
+                                    }
+                                },
+
+                            });
+                            $('#chart1').bind('jqplotDataHighlight',
+           function (ev, seriesIndex, pointIndex, datito) {
+               var texto = '';
+               $('#chartInfo').html(texto);
+
+           }
+       );
+
+                            $('#chart1').bind('jqplotDataUnhighlight',
+                                function (ev) {
+
+
+                                    $('#chartInfo').html('');
+                                }
+                            );
+                        } else {
+                            msg.classList.remove("hidden")
+                        }
+                    },
+                    error: function () {
+                        alert("AJAX error reading details.");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!--Top Ten Ownews jqplot script-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#topten').on('click', function () {
+                $('#chart1').empty();
+                HideSelects();
+
+                $('#chartInfo').show();
+                texto = 'Owner:<br/>In Progress:<br/>Delayed:<br/>Total:';
+                $('#chartInfo').html(texto);
+
+                
+
+                var url= "http://10.7.20.5/lessondb/home/graficarC";
+                //var url= "http://s07dc2/lessondb/home/graficarC";
+                //var url = "http://localhost:52783/home/graficarC";
+                url += "?startDate=" + datesGraphLesson.start + "&finalDate=" + datesGraphLesson.end;
+
+                $.ajax({
+                    url: url,
+                    type: "GET",
+
+                    success: function (data) {
+                        
+                        var msg = document.getElementById('lblInfo');
+                        if (data.length != 0) {
+
+                            if (!msg.classList.contains('hidden')) {
+                                msg.classList.add("hidden")
+                            }
+                            var prog = [];
+                            var delayed = [];
+
+                            var owners = [];
+
+                            for (var i = 0; i < data.length; i++) {
+                                prog[i] = data[i].progress;
+                                delayed[i] = data[i].delayed;
+                                owners[i] = data[i].owner;
+                            }
+
+
+                            var plot = $.jqplot('chart1', [prog, delayed], {
+                                animate: true,
+                                stackSeries: true,
+                                captureRightClick: true,
+                                series: [
+                                    { label: 'In Progress' }, { label: 'Delayed' }]
+                                ,
+                                seriesDefaults: {
+                                    renderer: $.jqplot.BarRenderer,
+                                    rendererOptions: {
+                                        animation: {
+                                            speed: 2500
+                                        },
+                                        varyBarColor: true,
+                                        barMargin: 25
+                                    },
+
+                                }, seriesColors: ['#2bb600', '#e70000', '#1fcbd0', '#79d026', '#d25944', '#1fd096', '#bfdf17', '#ea701e', '#4a725f'],
+
+                                legend: {
+                                    show: true,
+                                    location: 'ne',
+                                    placement: 'outsideGrid'
+                                },
+                                axes: {
+                                    xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        ticks: owners
+                                    }
+
+                                },
+
+                            });
+                            $('#chart1').bind('jqplotDataHighlight',
+           function (ev, seriesIndex, pointIndex, datito) {
+               var texto = '';
+               $('#chartInfo').show();
+               texto = 'Owner: ' + data[pointIndex].owner + "<br/>In Progress: " + data[pointIndex].progress + "<br/> Delayed: " + data[pointIndex].delayed + "<br/> Total: " + data[pointIndex].total;
+               $('#chartInfo').html(texto);
+
+           }
+       );
+
+                            $('#chart1').bind('jqplotDataUnhighlight',
+                                function (ev) {
+
+
+                                    var texto = 'Owner:<br/>In Progress:<br/>Delayed:<br/>Total:'
+                                    $('#chartInfo').html(texto);
+                                    $('#chartInfo').show();
+                                }
+                            );
+
+                        } else {
+                            msg.classList.remove("hidden")
+                        }
+                    },
+                    error: function () {
+                        alert("AJAX error reading details.");
+                    }
+                });
+            });
+        });
+    </script>
+
+  <!--Grafica de muestra mensual de datos de las Action-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            $('#yearcontrol').on('change', function () {
+                graphD();
+            });
+
+            $('#monthly').on('click',function(){
+                graphD();
+            });
+
+                function graphD () {
+                
+                $('#chart1').empty();
+                HideSelects();
+                debugger;
+                var texto = ''
+                $('#chartInfo').html(texto);
+                $('#chartInfo').removeClass('hidden');
+                $('#yearDiv').removeClass('hidden');
+                var year = parseInt(document.getElementById('yearcontrol').value.toString());
+                
+                $.ajax({
+                    url: "http://10.7.20.5/lessondb/home/graficarD",
+                    //url: "http://s07dc2/lessondb/home/graficarD",
+                    //url: "http://localhost:52783/home/graficarD",
+                    //url: "http://localhost:52783/home/graficarDTest",
+                    type: "GET",
+                    data: { year: year },
+                    dataType:"json",                        
+                    success: function (data) {
+                        debugger;
+                                                
+                        var late = [];
+                        var month = [];
+                        var ontime = [];
+                        var opened=[]
+                        for (var i = 0; i < data.length; i++) {
+                            late[i] = data[i].late;
+                            month[i] = data[i].month;
+                            ontime[i] = data[i].ontime;
+                            opened[i] = data[i].opened;
+                            
+                        }
+                        debugger;
+                        var meses = ["January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"];
+
+                        var plot = $.jqplot('chart1', [opened,ontime,late], {
+                            animate: true,
+                            //stackSeries: true,
+                            captureRightClick: true,
+                            series: [
+                                { label: 'Opened' }, { label: 'Closed On Time' }, {label:"Closed Late"}]
+                                ,
+                            seriesDefaults: {
+                                renderer: $.jqplot.BarRenderer,
+                                pointLabels:{show:true},
+                                rendererOptions: {
+                                    animation: {
+                                        speed: 2500
+                                    },
+                                    //varyBarColor: true,
+                                    barMargin: 25
+                                },
+                           
+                            },
+                            seriesColors: ['#1fcbd0', '#2bb600', '#e70000' ],
+
+                            legend: {
+                                show: true,
+                                location: 'ne',
+                                placement: 'outsideGrid'
+                            },
+                            axes: {
+                                xaxis: {
+                                    renderer: $.jqplot.CategoryAxisRenderer,
+                                    ticks: meses
+                                }
+
+                            },
+
+                        });
+                        $('#chart1').bind('jqplotDataHighlight',
+       function (ev, seriesIndex, pointIndex, datito) {
+           var texto = '';
+           texto = ""
+           $('#chartInfo').html(texto);
+
+       }
+   );
+
+                        $('#chart1').bind('jqplotDataUnhighlight',
+                            function (ev) {
+                                var texto = "";
+                                $('#chartInfo').html(texto);
+                            }
+                        );
+
+                                          
+                    },
+                    error: function () {
+                        alert("AJAX error reading details.");
+                    }
+                });
+            };
+        });
+    </script>
+
+    <!--Lessons Learned made per month jqplot script-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#yearLesson').on('change', function () {
+                graphE();
+            });
+            $('#llmonthly').on('click', function () {
+                graphE();
+            });
+
+
+            function graphE() {
+
+                $('#chart1').empty();
+                HideSelects();
+                $('#chartInfo').show();
+                texto = '';
+                $('#chartInfo').html(texto);
+               
+                $('#yearDivLesson').removeClass('hidden');
+
+                var url = "http://10.7.20.5/lessondb/home/graficarE2";
+                //var url= "http://s07dc2/lessondb/home/graficarE2",
+                //var url = "http://localhost:52783/home/graficarE2";
+
+                url += "?year=" + $('#yearLesson').val();
+                debugger;
+                $.ajax({
+
+                url:url,   
+                    type: "GET",
+                    success: function (data) {
+                        debugger;
+                        var msg = document.getElementById('lblInfo');
+                        if (data.length != 0) {
+
+                            if (!msg.classList.contains('hidden')) {
+                                msg.classList.add("hidden")
+                            }
+                            var bdm = [];
+                            var bhun = [];
+                            var bxl = [];
+
+                            //for (var i = 0; i < 12; i++) {
+                            //    bdm[i] = data.bdm[i];
+                            //    bhun[i] = data.bhun[i];
+                            //    bxl[i] = data.bxl[i];
+                            //}
+
+                            bdm = data.BDM;
+                            bhun = data.BHUN;
+                            bxl = data.BXL;
+
+                            var meses = ["January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"];
+
+                            var plot = $.jqplot('chart1', [bdm, bhun, bxl], {
+                                animate: true,
+                                stackSeries: true,
+                                captureRightClick: true,
+                                series: [
+                                    { label: 'BDM' }, { label: 'BHUN' }, { label: "BXL" }]
+                                ,
+                                seriesDefaults: {
+                                    renderer: $.jqplot.BarRenderer,
+                                    rendererOptions: {
+                                        animation: {
+                                            speed: 2500
+                                        },
+                                        varyBarColor: true,
+                                        barMargin: 25
+                                    },
+                                    pointLabels: {show: true}
+
+                                }, seriesColors: ['#1190DF', '#F68813', '#D2D2D2', '#79d026', '#d25944', '#1fd096', '#bfdf17', '#ea701e', '#4a725f'],
+
+                                legend: {
+                                    show: true,
+                                    location: 'ne',
+                                    placement: 'outsideGrid'
+                                },
+                                axes: {
+                                    xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        ticks: meses
+                                    }
+
+                                },
+
+                            });
+                            $('#chart1').bind('jqplotDataHighlight',
+       function (ev, seriesIndex, pointIndex, datito) {
+           var texto = '';
+           texto = ""
+           $('#chartInfo').html(texto);
+       }
+   );
+                            $('#chart1').bind('jqplotDataUnhighlight',
+                             function (ev) {
+                                 var texto = ""
+                                 $('#chartInfo').html(texto);
+                             }
+                            );
+                        }
+                    },
+
+                    error: function () {
+                        alert("AJAX error reading details.");
+                    }
+                });
+            }
+        });
+
+
+    </script>
+
+    <!--Lessons Learned made per year jqplot scrpot -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#yearLessonYear').on('change', function () {
+                graphH();
+            });
+            $('#llyear').on('click', function () {
+                graphH();
+            });
+
+
+            function graphH() {
+
+                $('#chart1').empty();
+                HideSelects();
+
+                $('#chartInfo').show();
+                texto = '';
+                $('#chartInfo').html(texto);
+               
+
+                $('#yearDivLessonYear').removeClass('hidden');
+
+                var url= "http://10.7.20.5/lessondb/home/graficarH";
+                //var url= "http://s07dc2/lessondb/home/graficarH";
+                //var url = "http://localhost:52783/home/graficarH";
+                var year = parseInt($('#yearLessonYear').val());
+                url += "?startyear=" + year;
+                debugger;
+                $.ajax({
+
+                    url: url,
+                    type: "GET",
+                    success: function (data) {
+                        debugger;
+                        var msg = document.getElementById('lblInfo');
+                        if (data.length != 0) {
+
+                            if (!msg.classList.contains('hidden')) {
+                                msg.classList.add("hidden")
+                            }
+
+                            // For each year
+
+                            bdm = data.BDM;
+                            bhun = data.BHUN;
+                            bxl = data.BXL;
+
+                            var years = [];
+
+                            for (var i = year; i <= new Date().getFullYear() ; i++) {
+                                years.push(i);
+                            }
+                            debugger;
+
+                            var plot = $.jqplot('chart1', [bdm, bhun, bxl], {
+                                animate: true,
+                                stackSeries: true,
+                                captureRightClick: true,
+                                series: [
+                                    { label: 'BDM' }, { label: 'BHUN' }, { label: "BXL" }]
+                                ,
+                                seriesDefaults: {
+                                    renderer: $.jqplot.BarRenderer,
+                                    rendererOptions: {
+                                        animation: {
+                                            speed: 2500
+                                        },
+                                        varyBarColor: true,
+                                        barMargin: 25
+                                    },
+                                    pointLabels: { show: true }
+                                }, seriesColors: ['#1190DF', '#F68813', '#D2D2D2', '#79d026', '#d25944', '#1fd096', '#bfdf17', '#ea701e', '#4a725f'],
+
+                                legend: {
+                                    show: true,
+                                    location: 'ne',
+                                    placement: 'outsideGrid'
+                                },
+                                axes: {
+                                    xaxis: {
+                                        renderer: $.jqplot.CategoryAxisRenderer,
+                                        ticks: years
+                                    }
+
+                                },
+
+                            });
+                            $('#chart1').bind('jqplotDataHighlight',
+       function (ev, seriesIndex, pointIndex, datito) {
+           var texto = '';
+           texto = ""
+           $('#chartInfo').html(texto);
+       }
+   );
+                            $('#chart1').bind('jqplotDataUnhighlight',
+                             function (ev) {
+                                 var texto = ""
+                                 $('#chartInfo').html(texto);
+                             }
+                            );
+                        }
+                    },
+
+                    error: function () {
+                        alert("AJAX error reading details.");
+                    }
+                });
+            }
+        });
+
+
+    </script>
+
+
+    <!--Script para el toggle dentro del modal (Date Closed)-->
+    <script type="text/javascript">
+        function toggleDate() {
+            if ($(selDate).attr('readonly') == 'readonly') {
+                $(selDate).removeAttr('readonly');
+            }
+            else {
+                $(selDate).attr('readonly', 'readonly');
+            }
+        }
+        </script>
+    
+    <!--Control del Checkbox para aparecer o desaparecer el campo de Closed Date-->
+    <script type="text/javascript">
+            //revisa cuantos campos de owner deben de estar abiertos
+            $('#ownerCounter').change(function () {
+                if (this.value == '1') {
+                    $('#ownerCount2').addClass('hidden');
+                    $('#ownerCount3').addClass('hidden');
+                    $('#ownerCont4').addClass('hidden');
+                    $('#ownerCont5').addClass('hidden');
+                }
+                if (this.value == '2') {
+                    $('#ownerCount2').removeClass('hidden');
+                    $('#ownerCount3').addClass('hidden');
+                    $('#ownerCont4').addClass('hidden');
+                    $('#ownerCont5').addClass('hidden');
+                }
+                if (this.value == '3') {
+                    $('#ownerCount2').removeClass('hidden');
+                    $('#ownerCount3').removeClass('hidden');
+                    $('#ownerCont4').addClass('hidden');
+                    $('#ownerCont5').addClass('hidden');
+                }
+                if (this.value == '4') {
+                    $('#ownerCount2').removeClass('hidden');
+                    $('#ownerCount3').removeClass('hidden');
+                    $('#ownerCont4').removeClass('hidden');
+                    $('#ownerCont5').addClass('hidden');
+                }
+                if (this.value == '5') {
+                    $('#ownerCount2').removeClass('hidden');
+                    $('#ownerCount3').removeClass('hidden');
+                    $('#ownerCont4').removeClass('hidden');
+                    $('#ownerCont5').removeClass('hidden');
+                }
+            });
+    </script>
+
+    <!-- SCRIPTS GRAPHICS LESSONS -->
+    <!-- Graphic Total Plant -->
+    <script type="text/javascript">
+        $(function () {
+            $('#GraphLessonTotal').on('click', function () {
+                $('#chart1').empty();
+                HideSelects();
+                
+                var url = "http://10.7.20.5/lessondb/home/graficaL1";
+                //var url = "http://localhost:52783/home/graficaL1";
+                
+                url += "?startDate=" + datesGraphLesson.start + "&finalDate=" + datesGraphLesson.end;
+                debugger;
+                $.getJSON(url, function (data) {
+
+                    if (data.data.length == 0)
+                    {
+                        alert("Empty data!!!!");
+                        return;
+                    }
+                    // Build Graph
+                    debugger;
+                    var plot = $.jqplot('chart1', [data.data], {
+                        animate: true,
+                        series: [{
+                            renderer: $.jqplot.BarRenderer, rendererOptions: { varyBarColor: true }
+                        }],
+                        seriesColors: ['#385ca9', '#2bb600', '#e70000', '#C7754C', '#17BDB8'],
+                        axes: {
+                            xaxis: {
+
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                //tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                ticks:data.ticks
+                            }
+                        },
+                        seriesDefaults: {
+                            pointLabels: {
+                                show: true
+                            }
+                        }
+                    });
+                });
+            });
+
+            $('#GraphLessonStatus').on('click', function () {
+              
+               
+
+                $("#plantcontrol").change();
+            });
+
+            $("#plantcontrol").on('change', LoadChartLessonStatus);
+
+            function LoadChartLessonStatus()
+            {
+                $('#chart1').empty();
+                HideSelects();
+                $("#plantDiv").removeClass('hidden');
+                var plant = $(this).val();
+                var url = "http://10.7.20.5/lessondb/home/graficaL2";
+                //var url = "http://localhost:52783/home/graficaL2";
+
+                url += "?startDate=" + datesGraphLesson.start + "&finalDate=" + datesGraphLesson.end + "&plant=" + plant;
+
+                $.getJSON(url, function (data) {
+                    debugger;
+                    if (data.data.length == 0) {
+                        alert("Empty data!!!!");
+                        return;
+                    }
+                    // Build Graph
+                    debugger;
+                    var plot = $.jqplot('chart1', [data.data], {
+                        animate: true,
+                        series: [{
+                            renderer: $.jqplot.BarRenderer, rendererOptions: { varyBarColor: true }
+                        }],
+                        seriesColors: ['#385ca9', '#2bb600', '#e70000', '#C7754C', '#17BDB8'],
+                        axes: {
+                            xaxis: {
+
+                                renderer: $.jqplot.CategoryAxisRenderer,
+                                //tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                                ticks: data.ticks
+                            }
+                        },
+                        seriesDefaults: {
+                            pointLabels: {
+                                show: true
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+
+</body>

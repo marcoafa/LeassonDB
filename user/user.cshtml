@@ -1,0 +1,315 @@
+﻿@using Lessons_Learned_DB.Models;
+@using Lessons_Learned_DB.View_Models;
+@model homeViewModel
+@{
+    ViewBag.Title = "Users Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <title></title>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-table.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-sortable.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-dropdown-checkbox.css" rel="stylesheet" />
+    <script src="~/Plugins/bootstrap-table.js"></script>
+    <script src="~/Plugins/moment.js"></script>
+    <script src="~/Plugins/bootstrap-sortable.js"></script>
+    <script src="~/Plugins/bootbox.min.js"></script>
+</head>
+<body>
+    <!--Modal para agregar un nuevo usuario a la lista de usuarios con permisos-->
+<form class="modal fade" method="post" action="#add" id="modalAdd">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Add User</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                   <div class="row col-md-10">
+                    <div class="col-md-9">
+                    <label>Insert Username or Email Address here</label>
+                    </div>
+                     </div>
+                    <br />
+                    <div class="row col-md-10">
+                    <div class="col-md-7">
+                    <input name="username" type="text" maxlength="100" size="25" />
+                    </div>
+                        </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"><label>Add with</label></div>
+                    <div class="col-md-3">
+                        <select class="form-control" name="tipo">
+                            <option value="email">Email</option>
+                            <option value="username">Username</option>
+                        </select>
+                    </div>
+                </div>
+
+               </div> 
+            <div class="modal-footer">
+               <span>
+                  <button type="submit" class="btn btn-primary" id="add">Add</button>
+              
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel</button>
+                </span>
+            </div>
+                </div>       
+             </div>      
+</form>
+    <form class="modal fade" method="post" action="#addOwner" id="modalAddOwner">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Add Owner</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="row col-md-10">
+                        <div class="col-md-9">
+                        <label>Insert Username or Email Address here</label>
+                        </div>
+                            </div>
+                        <br />
+                        <div class="row col-md-10">
+                        <div class="col-md-5">
+                        <input name="username1" type="text" maxlength="100" size="30"/>
+                            </div>
+                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2"><label>Add with</label></div>
+                        <div class="col-md-3">
+                            <select class="form-control" name="tipo1">
+                                <option value="email">Email</option>
+                                <option value="username">Username</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div> 
+                <div class="modal-footer">
+                    <span>
+                        <button type="submit" class="btn btn-primary" id="addOwner">Add</button>
+
+                        <button type="button" class="btn btn-default" data-dismiss="modal"> Cancel</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+
+<div class="container">
+    <ul id="mainUL" class="nav nav-tabs">
+        <li id="t1">
+            <a href="~/home/home" class="pestania">
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home
+            </a>
+        </li>
+        <li id="t2" class="active"><a id="menu1a" data-toggle="tab" href="#menu1">Edit permits </a></li>
+        <li id="t3"><a id="menu2a" data-toggle="tab" href="#menu2">Edit Owners</a></li>
+        
+    </ul>
+</div>
+  <div class="tab-content">
+        <div id="menu1" class="tab-pane fade in active">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="text-center">Users List with Edit Permits</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!--Llamada al Modal-->
+            <button type="button"  class="btn btn-success" data-toggle="modal" data-target="#modalAdd" style="float:right"> 
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add a User 
+            </button>
+            
+       <!--Tabla de usuarios con permisos"-->
+        <table id="mainTable" class="table table-bordered table-hover table-responsive" >
+            <thead>
+                <tr>
+                    <th data-field="nombre" data-sortable="true">Nombre</th>
+                    <th data-field="username" data-sortable="true">Username</th>
+                    <th data-field="email" data-sortable="true">Email Address</th>
+                    <th data-field="Delete" data-sortable="false">Delete User</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (usuario accion in Model.listaUsuarios)
+                {
+                    <tr>
+                        <td> @(accion.nombre) </td>
+                        <td>@(accion.username)</td>
+                        <td>@(accion.email)</td>
+                        <!--Los unicos con opcion de ser borrados son los usuarios de permitlvl2-->
+                        <td class="block">
+                            <form class="" method="post" action="~/user/delete">
+                                <input type="hidden" name="username" value="@accion.username" />
+                                <div class="btn-group-vertical">
+                                    <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('Are you sure you want to delete this user?')" style=@(accion.permitLevel==3? "display:none":"display:initial")>
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                        Delete
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                      
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+    </div>
+    <div class="panel-footer">
+      
+        
+
+    </div>
+</div>
+            </div>
+        <div id="menu2" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="text-center">Users List added as Owners</h2>
+                </div>
+                <div class="panel-body">
+
+                    <!--Llamada al Modal-->
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target=#modalAddOwner style="float:right">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add a User
+                    </button>
+
+                    <!--Tabla de usuarios con permisos"-->
+                    <table id="ownerTable" class="table table-bordered table-hover table-responsive">
+                        <thead>
+                            <tr>
+                                <th data-field="nombre" data-sortable="true">Nombre</th>
+                                <th data-field="username" data-sortable="true">Username</th>
+                                <th data-field="email" data-sortable="true">Email</th>
+                                <th data-field="Delete" data-sortable="false">Delete User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (owner accion in Model.listaOwners)
+                            {
+                                <tr>
+                                    <td> @(accion.name) </td>
+                                    <td>@(accion.username)</td>
+                                    <td>@(accion.email)</td>
+                                    <!--Los unicos con opcion de ser borrados son los usuarios de permitlvl2-->
+                                    <td class="block">
+                                        <form class="" method="post" action="~/user/deleteOwner">
+                                            <input type="hidden" name="username" value="@accion.username" />
+                                            <div class="btn-group-vertical">
+                                                <button type="submit" class="btn btn-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this user?')">
+                                                    <span class="glyphicon glyphicon-remove"></span>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="panel-footer">
+
+
+
+                </div>
+            </div>
+        </div>
+        </div>
+    
+    <!--Add User/Add Owner-->
+    <script type="text/javascript" >
+
+        $(document).ready(function () {
+
+            $('#add').on('click', function () {
+               
+                var texto = document.getElementsByName('username')[0].value;
+                var tip = document.getElementsByName('tipo')[0].value;
+                var confirmacion = confirm("You are about to add the user with the following "+ tip + ": "+texto+" to the Permit List. Are you sure?");
+                
+                if (confirmacion == true) {
+                    debugger;
+                    $.ajax({
+
+                        url: "http://10.7.20.5/lessondb/user/addConfirmed",
+                        //url: "http://localhost:52783/user/addConfirmed",
+                        type: "POST",
+                        datatype: "Json",
+                        data: {
+                            texto: texto,
+                            tip:tip
+                        },
+
+                        success: function (data) {
+                            alert(data);
+                        },
+                        error: function () {
+                            alert("AJAX error reading details.");
+                        }
+
+                    });
+                }
+            });
+        });
+        </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#addOwner').on('click', function () {
+                debugger;
+                var texto = document.getElementsByName('username1')[0].value;
+                var tip = document.getElementsByName('tipo1')[0].value;
+                
+                var confirmacion = confirm("You are about to add the user with the following " + tip + ": " + texto + " to the Owners List. Are you sure?");
+                if (confirmacion == true)
+                    //debugger;
+                    $.ajax({
+                        //url: "http://localhost:52783/user/addOwnerConfirmed",
+                        url: "http://10.7.20.5/lessondb/user/addOwnerConfirmed",
+                        type: "POST",
+                        datatype: "Json",
+                        data: {
+                            texto: texto,
+                            tip:tip
+                        },
+
+                        success: function (data) {
+                            alert(data);
+                            window.location.reload();
+                        },
+                        error: function () {
+                            alert("AJAX error reading details.");
+                        }
+
+                    });
+            });
+        });
+    </script>
+
+
+
+   
+
+</body>
